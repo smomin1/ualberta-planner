@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { DegreeRequirements, CareerTrack } from '../types';
+import coursesData from '../../../server/data/courses.json';
 
 const CS_TEMPLATE: DegreeRequirements = {
   programName: 'Computing Science BSc',
@@ -69,14 +70,25 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [completedCourses, setCompletedCourses] = useState<string[]>([]);
   const [careerTrack, setCareerTrack] = useState<CareerTrack>('Not sure yet');
   const [useTemplate, setUseTemplate] = useState(true);
+  const [inputError, setInputError] = useState('');
 
   const addCourse = () => {
-    const code = completedInput.trim().toUpperCase();
-    if (code && !completedCourses.includes(code)) {
-      setCompletedCourses([...completedCourses, code]);
-      setCompletedInput('');
-    }
-  };
+  const code = completedInput.trim().toUpperCase();
+  const exists = coursesData.some((c: any) => c.code === code);
+
+  if (!code) return;
+
+  if (!exists) {
+    setInputError(`"${code}" was not found in our course database`);
+    return;
+  }
+
+  if (!completedCourses.includes(code)) {
+    setCompletedCourses([...completedCourses, code]);
+    setCompletedInput('');
+    setInputError('');
+  }
+};
 
   const removeCourse = (code: string) => {
     setCompletedCourses(completedCourses.filter(c => c !== code));
@@ -202,7 +214,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 className="flex-1 border rounded-lg p-3 text-sm uppercase"
                 placeholder="e.g. CMPUT 101"
                 value={completedInput}
-                onChange={e => setCompletedInput(e.target.value)}
+                onChange={e => {
+                setCompletedInput(e.target.value);
+                setInputError('');
+                }}
                 onKeyDown={handleKeyDown}
               />
               <button
@@ -212,6 +227,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 Add
               </button>
             </div>
+            {inputError && (
+            <p className="text-xs text-red-500 -mt-2 mb-2">
+                ⚠️ {inputError}
+            </p>
+            )}
 
             <div className="flex flex-wrap gap-2 min-h-16 bg-gray-50 rounded-xl p-3 mb-4">
               {completedCourses.length === 0 ? (
