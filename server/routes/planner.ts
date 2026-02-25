@@ -87,4 +87,56 @@ Keep it concise and student-friendly.`
     });
   }
 });
+
+// Generate career tracks based on program name
+router.post('/career-tracks', async (req, res) => {
+  const { programName } = req.body;
+
+  if (!programName) {
+    return res.status(400).json({ error: 'Program name required' });
+  }
+
+  try {
+    const Groq = require('groq-sdk');
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: 512,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a career advisor. When given a university program name, 
+you respond ONLY with a valid JSON array of career tracks relevant to that program.
+Each item has: "label" (short name), "icon" (single emoji), "description" (one sentence).
+Always include "Research & Academia" as the last option.
+Return exactly 5 tracks. Return ONLY the JSON array, no other text.`
+        },
+        {
+          role: 'user',
+          content: `Generate 5 career tracks for: ${programName}`
+        }
+      ]
+    });
+
+    const text = completion.choices[0]?.message?.content || '[]';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const tracks = JSON.parse(clean);
+    res.json({ tracks });
+
+  } catch (error: any) {
+    console.error('Career tracks error:', error);
+    // Fallback to generic tracks if AI fails
+    res.json({
+      tracks: [
+        { label: 'Industry Professional', icon: '💼', description: 'Apply your skills in industry' },
+        { label: 'Research & Academia', icon: '🔬', description: 'Pursue graduate studies and research' },
+        { label: 'Entrepreneurship', icon: '🚀', description: 'Start your own venture' },
+        { label: 'Consulting', icon: '📊', description: 'Advise organizations in your field' },
+        { label: 'Not sure yet', icon: '🧭', description: 'Explore your options' },
+      ]
+    });
+  }
+});
+
 export default router;

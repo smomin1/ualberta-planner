@@ -55,21 +55,19 @@ const CS_TEMPLATE: DegreeRequirements = {
   ]
 };
 
-const CAREER_TRACKS: CareerTrack[] = [
-  'Machine Learning',
-  'Software Engineering',
-  'Systems & Infrastructure',
-  'Research & Academia',
-  'Not sure yet'
-];
+interface CareerTrackOption {
+  label: string;
+  icon: string;
+  description: string;
+}
 
-const CAREER_ICONS: Record<CareerTrack, string> = {
-  'Machine Learning': '🤖',
-  'Software Engineering': '💻',
-  'Systems & Infrastructure': '⚙️',
-  'Research & Academia': '🔬',
-  'Not sure yet': '🧭'
-};
+const CS_CAREER_TRACKS: CareerTrackOption[] = [
+  { label: 'Machine Learning', icon: '🤖', description: 'Build intelligent systems and models' },
+  { label: 'Software Engineering', icon: '💻', description: 'Design and build software products' },
+  { label: 'Systems & Infrastructure', icon: '⚙️', description: 'Build reliable, scalable systems' },
+  { label: 'Research & Academia', icon: '🔬', description: 'Pursue graduate studies and research' },
+  { label: 'Not sure yet', icon: '🧭', description: 'Explore your options' },
+];
 
 interface OnboardingProps {
   onComplete: (
@@ -84,27 +82,29 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [requirements, setRequirements] = useState<DegreeRequirements>(CS_TEMPLATE);
   const [completedInput, setCompletedInput] = useState('');
   const [completedCourses, setCompletedCourses] = useState<string[]>([]);
-  const [careerTrack, setCareerTrack] = useState<CareerTrack>('Not sure yet');
+  const [careerTrack, setCareerTrack] = useState<string>('Not sure yet');
   const [useTemplate, setUseTemplate] = useState(true);
   const [inputError, setInputError] = useState('');
+  const [careerTrackOptions, setCareerTrackOptions] = useState<CareerTrackOption[]>(CS_CAREER_TRACKS);
+  const [loadingTracks, setLoadingTracks] = useState(false);
 
   const addCourse = () => {
-  const code = completedInput.trim().toUpperCase();
-  const exists = coursesData.some((c: any) => c.code === code);
+    const code = completedInput.trim().toUpperCase();
+    const exists = (coursesData as any[]).some((c: any) => c.code === code);
 
-  if (!code) return;
+    if (!code) return;
 
-  if (!exists) {
-    setInputError(`"${code}" was not found in our course database`);
-    return;
-  }
+    if (!exists) {
+      setInputError(`"${code}" was not found in our course database`);
+      return;
+    }
 
-  if (!completedCourses.includes(code)) {
-    setCompletedCourses([...completedCourses, code]);
-    setCompletedInput('');
-    setInputError('');
-  }
-};
+    if (!completedCourses.includes(code)) {
+      setCompletedCourses([...completedCourses, code]);
+      setCompletedInput('');
+      setInputError('');
+    }
+  };
 
   const removeCourse = (code: string) => {
     setCompletedCourses(completedCourses.filter(c => c !== code));
@@ -112,6 +112,46 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') addCourse();
+  };
+
+  const handleGoToStep3 = async () => {
+    setStep(3);
+
+    // For CS template keep the hardcoded tracks, no API call needed
+    if (useTemplate) {
+      setCareerTrackOptions(CS_CAREER_TRACKS);
+      setCareerTrack('Not sure yet');
+      return;
+    }
+
+    // For custom programs generate tracks via Groq
+    if (requirements.programName.trim()) {
+      setLoadingTracks(true);
+      try {
+        const res = await fetch('http://localhost:3001/api/career-tracks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ programName: requirements.programName })
+        });
+        const data = await res.json();
+        if (data.tracks && data.tracks.length > 0) {
+          setCareerTrackOptions(data.tracks);
+          setCareerTrack(data.tracks[0].label);
+        }
+      } catch (err) {
+        console.error('Failed to fetch career tracks:', err);
+        // Fall back to generic tracks
+        setCareerTrackOptions([
+          { label: 'Industry Professional', icon: '💼', description: 'Apply your skills in industry' },
+          { label: 'Research & Academia', icon: '🔬', description: 'Pursue graduate studies and research' },
+          { label: 'Entrepreneurship', icon: '🚀', description: 'Start your own venture' },
+          { label: 'Consulting', icon: '📊', description: 'Advise organizations in your field' },
+          { label: 'Not sure yet', icon: '🧭', description: 'Explore your options' },
+        ]);
+      } finally {
+        setLoadingTracks(false);
+      }
+    }
   };
 
   return (
@@ -186,30 +226,30 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 ))}
               </div>
             ) : (
-            <div className="space-y-4">
+              <div className="space-y-4">
                 <input
-                className="w-full border rounded-lg p-3 text-sm"
-                placeholder="Program name (e.g. Computing Science BSc)"
-                value={requirements.programName}
-                onChange={e => setRequirements({ ...requirements, programName: e.target.value })}
+                  className="w-full border rounded-lg p-3 text-sm"
+                  placeholder="Program name (e.g. Mechanical Engineering BSc)"
+                  value={requirements.programName}
+                  onChange={e => setRequirements({ ...requirements, programName: e.target.value })}
                 />
                 <input
-                className="w-full border rounded-lg p-3 text-sm"
-                placeholder="Total units required (e.g. 120)"
-                type="number"
-                value={requirements.totalUnitsRequired}
-                onChange={e => setRequirements({ ...requirements, totalUnitsRequired: Number(e.target.value) })}
+                  className="w-full border rounded-lg p-3 text-sm"
+                  placeholder="Total units required (e.g. 120)"
+                  type="number"
+                  value={requirements.totalUnitsRequired}
+                  onChange={e => setRequirements({ ...requirements, totalUnitsRequired: Number(e.target.value) })}
                 />
                 <div>
-                <label className="text-xs font-medium text-gray-500 mb-2 block">
+                  <label className="text-xs font-medium text-gray-500 mb-2 block">
                     Requirement Categories
-                </label>
-                <RequirementsBuilder
+                  </label>
+                  <RequirementsBuilder
                     categories={requirements.categories}
                     onChange={cats => setRequirements({ ...requirements, categories: cats })}
-                />
+                  />
                 </div>
-            </div>
+              </div>
             )}
 
             <button
@@ -237,8 +277,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 placeholder="e.g. CMPUT 101"
                 value={completedInput}
                 onChange={e => {
-                setCompletedInput(e.target.value);
-                setInputError('');
+                  setCompletedInput(e.target.value);
+                  setInputError('');
                 }}
                 onKeyDown={handleKeyDown}
               />
@@ -249,10 +289,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 Add
               </button>
             </div>
+
             {inputError && (
-            <p className="text-xs text-red-500 -mt-2 mb-2">
+              <p className="text-xs text-red-500 -mt-2 mb-2">
                 ⚠️ {inputError}
-            </p>
+              </p>
             )}
 
             <div className="flex flex-wrap gap-2 min-h-16 bg-gray-50 rounded-xl p-3 mb-4">
@@ -288,7 +329,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 ← Back
               </button>
               <button
-                onClick={() => setStep(3)}
+                onClick={handleGoToStep3}
                 className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition"
               >
                 Next →
@@ -307,21 +348,31 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               Your AI advisor will tailor recommendations based on your career goals.
             </p>
 
-            <div className="space-y-3 mb-8">
-              {CAREER_TRACKS.map(track => (
-                <button
-                  key={track}
-                  onClick={() => setCareerTrack(track)}
-                  className={`w-full p-4 rounded-xl border-2 text-left transition
-                    ${careerTrack === track
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-gray-300'}`}
-                >
-                  <span className="mr-3">{CAREER_ICONS[track]}</span>
-                  <span className="font-medium text-gray-800">{track}</span>
-                </button>
-              ))}
-            </div>
+            {loadingTracks ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-gray-400">
+                  Generating career tracks for {requirements.programName}...
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3 mb-8">
+                {careerTrackOptions.map(track => (
+                  <button
+                    key={track.label}
+                    onClick={() => setCareerTrack(track.label)}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition
+                      ${careerTrack === track.label
+                        ? 'border-green-600 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'}`}
+                  >
+                    <span className="mr-3 text-lg">{track.icon}</span>
+                    <span className="font-medium text-gray-800">{track.label}</span>
+                    <p className="text-xs text-gray-400 mt-1 ml-8">{track.description}</p>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="flex gap-3">
               <button
@@ -331,8 +382,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 ← Back
               </button>
               <button
-                onClick={() => onComplete(requirements, completedCourses, careerTrack)}
-                className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+                onClick={() => onComplete(requirements, completedCourses, careerTrack as CareerTrack)}
+                disabled={loadingTracks}
+                className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50"
               >
                 Start Planning 🚀
               </button>
