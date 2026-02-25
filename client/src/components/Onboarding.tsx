@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { DegreeRequirements, CareerTrack } from '../types';
 import coursesData from '../../../server/data/courses.json';
+import RequirementsBuilder from './RequirementsBuilder';
 
 const CS_TEMPLATE: DegreeRequirements = {
   programName: 'Computing Science BSc',
@@ -185,24 +186,30 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 ))}
               </div>
             ) : (
-              <div className="space-y-3">
+            <div className="space-y-4">
                 <input
-                  className="w-full border rounded-lg p-3 text-sm"
-                  placeholder="Program name (e.g. Computing Science BSc)"
-                  value={requirements.programName}
-                  onChange={e => setRequirements({ ...requirements, programName: e.target.value })}
+                className="w-full border rounded-lg p-3 text-sm"
+                placeholder="Program name (e.g. Computing Science BSc)"
+                value={requirements.programName}
+                onChange={e => setRequirements({ ...requirements, programName: e.target.value })}
                 />
                 <input
-                  className="w-full border rounded-lg p-3 text-sm"
-                  placeholder="Total units required (e.g. 120)"
-                  type="number"
-                  value={requirements.totalUnitsRequired}
-                  onChange={e => setRequirements({ ...requirements, totalUnitsRequired: Number(e.target.value) })}
+                className="w-full border rounded-lg p-3 text-sm"
+                placeholder="Total units required (e.g. 120)"
+                type="number"
+                value={requirements.totalUnitsRequired}
+                onChange={e => setRequirements({ ...requirements, totalUnitsRequired: Number(e.target.value) })}
                 />
-                <p className="text-xs text-gray-400">
-                  Custom category builder coming soon — use the CS template for now and edit after setup.
-                </p>
-              </div>
+                <div>
+                <label className="text-xs font-medium text-gray-500 mb-2 block">
+                    Requirement Categories
+                </label>
+                <RequirementsBuilder
+                    categories={requirements.categories}
+                    onChange={cats => setRequirements({ ...requirements, categories: cats })}
+                />
+                </div>
+            </div>
             )}
 
             <button
