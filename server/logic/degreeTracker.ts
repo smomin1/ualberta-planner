@@ -1,10 +1,22 @@
 import { Course } from './prerequisiteChecker';
 
+export type RequirementType = 
+  | 'required'
+  | 'pick_n'
+  | 'max_level'
+  | 'max_department';
+
 export interface RequirementCategory {
   label: string;
+  type: RequirementType;
   requiredCourses: string[];
   minUnits: number;
   minLevel?: number;
+  pickN?: number;
+  pickFromList?: string[];
+  maxUnits?: number;
+  maxLevel?: number;
+  maxDepartment?: string;
 }
 
 export interface DegreeRequirements {
@@ -20,6 +32,8 @@ export interface CategoryProgress {
   unitsCompleted: number;
   unitsRequired: number;
   fulfilled: boolean;
+  warning?: string;
+
 }
 
 export interface DegreeProgress {
@@ -47,32 +61,82 @@ export function getDegreeProgress(
   const categories: CategoryProgress[] = requirements.categories.map(req => {
     let completed: string[] = [];
     let unitsCompleted = 0;
+    let missing: string[] = [];
+    let warning: string | undefined;
 
-    if (req.requiredCourses.length > 0) {
-      completed = req.requiredCourses.filter(code =>
-        completedCourseCodes.includes(code)
-      );
-      unitsCompleted = completed.reduce((sum, code) => {
-        const course = allCourses.find(c => c.code === code);
-        return sum + (course?.units || 3);
-      }, 0);
-    } else if (req.minLevel) {
-      const seniorCompleted = completedCourses.filter(
-        c => c.level >= req.minLevel!
-      );
-      completed = seniorCompleted.map(c => c.code);
-      unitsCompleted = seniorCompleted.reduce((sum, c) => sum + c.units, 0);
-    } else {
-      const electivesCompleted = completedCourses.filter(
-        c => req.requiredCourses.length === 0 && !c.code.startsWith('CMPUT')
-      );
-      completed = electivesCompleted.map(c => c.code);
-      unitsCompleted = electivesCompleted.reduce((sum, c) => sum + c.units, 0);
+    switch (req.type) {
+
+      case 'required':
+        // All listed courses must be completed
+        completed = req.requiredCourses.filter(code =>
+          completedCourseCodes.includes(code)
+        );
+        missing = req.requiredCourses.filter(code =>
+          !completedCourseCodes.includes(code)
+        );
+        unitsCompleted = completed.reduce((sum, code) => {
+          const course = allCourses.find(c => c.code === code);
+          return sum + (course?.units || 3);
+        }, 0);
+        break;
+
+      case 'pick_n':
+        // Must pick N courses from a specific list
+        const pickedCourses = (req.pickFromList || []).filter(code =>
+          completedCourseCodes.includes(code)
+        );
+        completed = pickedCourses;
+        unitsCompleted = pickedCourses.reduce((sum, code) => {
+          const course = allCourses.find(c => c.code === code);
+          return sum + (course?.units || 3);
+        }, 0);
+        const stillNeeded = (req.pickN || 1) - pickedCourses.length;
+        if (stillNeeded > 0) {
+          const remaining = (req.pickFromList || []).filter(
+            code => !completedCourseCodes.includes(code)
+          );
+          missing = remaining.slice(0, stillNeeded);
+        }
+        break;
+
+      case 'max_level':
+        // Maximum units allowed at or below a certain level
+        const levelCourses = completedCourses.filter(
+          c => c.level <= (req.maxLevel || 199)
+        );
+        completed = levelCourses.map(c => c.code);
+        unitsCompleted = levelCourses.reduce((sum, c) => sum + c.units, 0);
+        if (req.maxUnits && unitsCompleted > req.maxUnits) {
+          warning = `Exceeded maximum ${req.maxUnits} units at ${req.maxLevel}-level (have ${unitsCompleted})`;
+        }
+        break;
+
+      case 'max_department':
+        // Maximum units allowed from one department
+        const deptCourses = completedCourses.filter(c =>
+          c.code.startsWith(req.maxDepartment || '')
+        );
+        completed = deptCourses.map(c => c.code);
+        unitsCompleted = deptCourses.reduce((sum, c) => sum + c.units, 0);
+        if (req.maxUnits && unitsCompleted > req.maxUnits) {
+          warning = `Exceeded maximum ${req.maxUnits} units from ${req.maxDepartment} (have ${unitsCompleted})`;
+        }
+        break;
     }
 
-    const missing = req.requiredCourses.filter(
-      code => !completedCourseCodes.includes(code)
-    );
+    const fulfilled = (() => {
+      switch (req.type) {
+        case 'required':
+          return missing.length === 0 && unitsCompleted >= req.minUnits;
+        case 'pick_n':
+          return completed.length >= (req.pickN || 1);
+        case 'max_level':
+        case 'max_department':
+          return !warning;
+        default:
+          return false;
+      }
+    })();
 
     return {
       label: req.label,
@@ -80,7 +144,8 @@ export function getDegreeProgress(
       missing,
       unitsCompleted,
       unitsRequired: req.minUnits,
-      fulfilled: unitsCompleted >= req.minUnits && missing.length === 0
+      fulfilled,
+      warning
     };
   });
 

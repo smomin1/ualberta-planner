@@ -65,7 +65,12 @@ export default function CompletedPanel({
                       {cat.fulfilled ? '✅' : '⏳'} {cat.label}
                     </span>
                     <span className="text-gray-400">
-                      {cat.unitsCompleted}/{cat.unitsRequired} units
+                        {cat.warning 
+                            ? `${cat.unitsCompleted} units (max exceeded)`
+                            : cat.unitsRequired === cat.unitsCompleted && cat.fulfilled
+                            ? `${cat.unitsCompleted} units ✓`
+                            : `${cat.unitsCompleted}/${cat.unitsRequired} units`
+                        }
                     </span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
@@ -79,10 +84,15 @@ export default function CompletedPanel({
                   </div>
                   {cat.missing.length > 0 && (
                     <p className="text-xs text-red-400 mt-1">
-                      Missing: {cat.missing.slice(0, 3).join(', ')}
-                      {cat.missing.length > 3 && ` +${cat.missing.length - 3} more`}
+                        Missing: {cat.missing.slice(0, 3).join(', ')}
+                        {cat.missing.length > 3 && ` +${cat.missing.length - 3} more`}
                     </p>
-                  )}
+                    )}
+                    {cat.warning && (
+                    <p className="text-xs text-orange-500 mt-1">
+                        ⚠️ {cat.warning}
+                    </p>
+                    )}
                 </div>
               );
             })}

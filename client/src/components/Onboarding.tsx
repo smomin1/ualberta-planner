@@ -8,6 +8,7 @@ const CS_TEMPLATE: DegreeRequirements = {
   categories: [
     {
       label: 'Core CS',
+      type: 'required',
       requiredCourses: [
         'CMPUT 114', 'CMPUT 115', 'CMPUT 175', 'CMPUT 201',
         'CMPUT 204', 'CMPUT 229', 'CMPUT 272', 'CMPUT 291',
@@ -17,24 +18,38 @@ const CS_TEMPLATE: DegreeRequirements = {
     },
     {
       label: 'Mathematics',
+      type: 'required',
       requiredCourses: ['MATH 114', 'MATH 115', 'MATH 125', 'MATH 225'],
       minUnits: 12
     },
     {
       label: 'Statistics',
+      type: 'required',
       requiredCourses: ['STAT 235'],
       minUnits: 3
     },
     {
       label: 'Senior CS Electives',
+      type: 'required',
       requiredCourses: [],
       minUnits: 24,
       minLevel: 300
     },
     {
-      label: 'Natural Science',
+      label: 'Natural Science — Pick 2',
+      type: 'pick_n',
       requiredCourses: [],
+      pickN: 2,
+      pickFromList: ['PHYS 124', 'PHYS 126', 'CHEM 101', 'BIOL 107'],
       minUnits: 6
+    },
+    {
+      label: 'Max 100-level Units',
+      type: 'max_level',
+      requiredCourses: [],
+      minUnits: 48,
+      maxLevel: 199,
+      maxUnits: 48
     }
   ]
 };

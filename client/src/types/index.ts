@@ -17,11 +17,25 @@ export interface TimeSlot {
   end: string;
 }
 
+export type RequirementType = 
+  | 'required'       
+  | 'pick_n'          
+  | 'max_level'       
+  | 'max_department'  
+
 export interface RequirementCategory {
   label: string;
+  type: RequirementType;
   requiredCourses: string[];
   minUnits: number;
   minLevel?: number;
+  // pick_n specific
+  pickN?: number;
+  pickFromList?: string[];
+  // max constraints
+  maxUnits?: number;
+  maxLevel?: number;
+  maxDepartment?: string;
 }
 
 export interface DegreeRequirements {
@@ -37,6 +51,7 @@ export interface CategoryProgress {
   unitsCompleted: number;
   unitsRequired: number;
   fulfilled: boolean;
+  warning?: string;
 }
 
 export interface DegreeProgress {
