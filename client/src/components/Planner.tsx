@@ -15,7 +15,7 @@ interface PlannerProps {
   careerTrack: CareerTrack;
 }
 
-const API = 'http://localhost:3001/api';
+const API = 'https://ualberta-planner-production.up.railway.app/api';
 
 export default function Planner({
   completedCourses,

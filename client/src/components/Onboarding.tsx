@@ -128,7 +128,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     if (requirements.programName.trim()) {
       setLoadingTracks(true);
       try {
-        const res = await fetch('http://localhost:3001/api/career-tracks', {
+        const res = await fetch('https://ualberta-planner-production.up.railway.app/api/career-tracks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ programName: requirements.programName })
