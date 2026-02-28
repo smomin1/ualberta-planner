@@ -57,16 +57,15 @@ const CS_TEMPLATE: DegreeRequirements = {
 
 interface CareerTrackOption {
   label: string;
-  icon: string;
   description: string;
 }
 
 const CS_CAREER_TRACKS: CareerTrackOption[] = [
-  { label: 'Machine Learning', icon: '🤖', description: 'Build intelligent systems and models' },
-  { label: 'Software Engineering', icon: '💻', description: 'Design and build software products' },
-  { label: 'Systems & Infrastructure', icon: '⚙️', description: 'Build reliable, scalable systems' },
-  { label: 'Research & Academia', icon: '🔬', description: 'Pursue graduate studies and research' },
-  { label: 'Not sure yet', icon: '🧭', description: 'Explore your options' },
+  { label: 'Machine Learning', description: 'Build intelligent systems and models' },
+  { label: 'Software Engineering', description: 'Design and build software products' },
+  { label: 'Systems & Infrastructure', description: 'Build reliable, scalable systems' },
+  { label: 'Research & Academia', description: 'Pursue graduate studies and research' },
+  { label: 'Not sure yet', description: 'Explore your options' },
 ];
 
 interface OnboardingProps {
@@ -142,11 +141,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         console.error('Failed to fetch career tracks:', err);
         // Fall back to generic tracks
         setCareerTrackOptions([
-          { label: 'Industry Professional', icon: '💼', description: 'Apply your skills in industry' },
-          { label: 'Research & Academia', icon: '🔬', description: 'Pursue graduate studies and research' },
-          { label: 'Entrepreneurship', icon: '🚀', description: 'Start your own venture' },
-          { label: 'Consulting', icon: '📊', description: 'Advise organizations in your field' },
-          { label: 'Not sure yet', icon: '🧭', description: 'Explore your options' },
+          { label: 'Industry Professional', description: 'Apply your skills in industry' },
+          { label: 'Research & Academia', description: 'Pursue graduate studies and research' },
+          { label: 'Entrepreneurship',  description: 'Start your own venture' },
+          { label: 'Consulting', description: 'Advise organizations in your field' },
+          { label: 'Not sure yet', description: 'Explore your options' },
         ]);
       } finally {
         setLoadingTracks(false);
@@ -155,9 +154,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 to-yellow-900 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8">
-
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#00502D' }}>     
+      <div className="bg-white rounded-2xl w-full max-w-2xl p-8" style={{ border: '2px solid #FFDB05', boxShadow: '0 8px 40px rgba(0,0,0,0.4)' }}>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🎓</div>
@@ -185,7 +183,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               Step 1: Your Degree Requirements
             </h2>
             <p className="text-gray-500 mb-6">
-              Use our pre-built CS template or enter your own program requirements.
+              Use our pre-built Computing Science BSc or enter your own program requirements.
             </p>
 
             <div className="flex gap-4 mb-6">
@@ -194,7 +192,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 className={`flex-1 p-4 rounded-xl border-2 text-left transition
                   ${useTemplate ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}
               >
-                <div className="font-semibold text-gray-800">🎓 CS Template</div>
+                <div className="font-semibold text-gray-800">Computing Science BSc</div>
                 <div className="text-sm text-gray-500 mt-1">Pre-built Computing Science BSc requirements</div>
               </button>
               <button
@@ -209,7 +207,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 className={`flex-1 p-4 rounded-xl border-2 text-left transition
                   ${!useTemplate ? 'border-green-600 bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}
               >
-                <div className="font-semibold text-gray-800">✏️ Custom Program</div>
+                <div className="font-semibold text-gray-800">Custom Program</div>
                 <div className="text-sm text-gray-500 mt-1">Enter your own degree requirements</div>
               </button>
             </div>
@@ -366,7 +364,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         ? 'border-green-600 bg-green-50'
                         : 'border-gray-200 hover:border-gray-300'}`}
                   >
-                    <span className="mr-3 text-lg">{track.icon}</span>
+                    {/* <span className="mr-3 text-lg">{track.icon}</span> */}
                     <span className="font-medium text-gray-800">{track.label}</span>
                     <p className="text-xs text-gray-400 mt-1 ml-8">{track.description}</p>
                   </button>
@@ -386,7 +384,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 disabled={loadingTracks}
                 className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50"
               >
-                Start Planning 🚀
+                Start Planning
               </button>
             </div>
           </div>

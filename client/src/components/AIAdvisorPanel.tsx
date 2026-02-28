@@ -8,13 +8,6 @@ interface AIAdvisorPanelProps {
   onRefresh: () => void;
 }
 
-const CAREER_ICONS: Record<CareerTrack, string> = {
-  'Machine Learning': '🤖',
-  'Software Engineering': '💻',
-  'Systems & Infrastructure': '⚙️',
-  'Research & Academia': '🔬',
-  'Not sure yet': '🧭'
-};
 
 export default function AIAdvisorPanel({
   recommendation,
@@ -27,7 +20,7 @@ export default function AIAdvisorPanel({
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold text-gray-800">
-          {CAREER_ICONS[careerTrack]} AI Advisor
+           ✨ AI Advisor
         </h2>
         <button
           onClick={onRefresh}
@@ -87,7 +80,7 @@ export default function AIAdvisorPanel({
         </div>
       ) : (
         <div className="text-center py-8 text-gray-400">
-          <div className="text-4xl mb-3">🤔</div>
+          {/* <div className="text-4xl mb-3">🤔</div> */}
           <p className="text-sm font-medium text-gray-500">No recommendations yet</p>
           <p className="text-xs text-gray-400 mt-1">
             Add courses to your semester plan then click "Get AI Advice"

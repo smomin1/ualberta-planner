@@ -88,7 +88,7 @@ export default function Planner({
       {/* Header */}
       <div className="bg-green-700 text-white px-8 py-4 flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold">🎓 UAlberta Course Planner</h1>
+          <h1 className="text-xl font-bold">UAlberta Course Planner</h1>
           <p className="text-green-200 text-sm">{requirements.programName}</p>
         </div>
         <button

@@ -11,31 +11,26 @@ const TYPE_OPTIONS: {
   value: RequirementType;
   label: string;
   description: string;
-  icon: string;
 }[] = [
   {
     value: 'required',
     label: 'Required Courses',
     description: 'Specific courses that must all be completed',
-    icon: '📋'
   },
   {
     value: 'pick_n',
     label: 'Pick N from List',
     description: 'Student picks N courses from a defined list',
-    icon: '🎯'
   },
   {
     value: 'max_level',
     label: 'Max Units at Level',
     description: 'Maximum units allowed at or below a course level',
-    icon: '📊'
   },
   {
     value: 'max_department',
     label: 'Max Units from Department',
     description: 'Maximum units allowed from one department',
-    icon: '🏛'
   }
 ];
 
@@ -280,7 +275,6 @@ function RequirementForm({
                   ? 'border-green-600 bg-white'
                   : 'border-gray-200 bg-white hover:border-gray-300'}`}
             >
-              <div className="text-base mb-1">{opt.icon}</div>
               <div className="text-xs font-semibold text-gray-800">{opt.label}</div>
               <div className="text-xs text-gray-400 mt-0.5 leading-tight">{opt.description}</div>
             </button>
@@ -343,7 +337,6 @@ function SubmittedCard({
   return (
     <div className="flex items-center justify-between p-3 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 transition">
       <div className="flex items-center gap-3">
-        <span className="text-xl">{typeInfo?.icon}</span>
         <div>
           <p className="text-sm font-semibold text-gray-800">{category.label}</p>
           <p className="text-xs text-gray-400">{getSummary()}</p>

@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --uofa-green: #007C41;
+  --uofa-dark-green: #00502D;
+  --uofa-gold: #FFDB05;
+  --uofa-gold-dark: #C9A800;
+  --uofa-gold-muted: rgba(255, 219, 5, 0.15);
+}
+
+body {
+  background-color: var(--uofa-dark-green);
+}
+
+/* Golden card border */
+.gold-card {
+  border: 2px solid var(--uofa-gold);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 219, 5, 0.1);
+}
+
+/* Progress bar */
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--uofa-green), #00a352);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--uofa-green);
+  border-radius: 3px;
+}
