@@ -319,7 +319,6 @@ function SubmittedCard({
   onEdit: () => void;
   onRemove: () => void;
 }) {
-  const typeInfo = TYPE_OPTIONS.find(t => t.value === category.type);
 
   const getSummary = () => {
     switch (category.type) {
